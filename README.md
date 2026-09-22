@@ -12,7 +12,7 @@
 </p>
 
 <p align="center">
-  <img src="./docs/hero.png" alt="Tidy overview" width="1000" />
+  <img src="./docs/banner.png" alt="Tidy" width="1000" />
 </p>
 
 > Tidy watches Desktop, Downloads and Documents, works out what each file *is* and where it belongs, and files it there. Screenshots, resumes, coursework, datasets, installers, repos. It moves things in a journaled, undoable way, and anything it isn't sure about is parked in a folder you can see, never deleted.
@@ -84,6 +84,8 @@ review 0.62 ~/Downloads/unnamed.png  [category junk below 0.8]
 ## The app
 
 `tidy ui` serves a local page at `127.0.0.1:4848` (nothing leaves the machine).
+
+<p align="center"><img src="./docs/hero.png" alt="Tidy overview tab" width="900" /></p>
 
 | Tab | What you do there |
 |---|---|

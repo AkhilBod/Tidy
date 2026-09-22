@@ -1,0 +1,58 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+html,body{margin:0;width:2000px;height:1125px;background:#2f4156;font-family:'Inter',-apple-system,system-ui,sans-serif;overflow:hidden}
+.wrap{display:grid;grid-template-columns:720px 1px 1fr;height:100%;padding:70px 60px 70px 90px;gap:0 70px;box-sizing:border-box}
+.left{display:flex;flex-direction:column;justify-content:space-between}
+.disc{width:520px;height:520px;border-radius:50%;background:#f4efe3;display:flex;align-items:center;justify-content:center;margin-left:20px}
+.disc svg{width:330px;height:330px}
+.word{color:#f4efe3;padding-left:20px}
+.word h1{font-size:150px;font-weight:700;margin:0;line-height:1;letter-spacing:-.02em}
+.word p{font-size:52px;font-weight:600;margin:18px 0 0;letter-spacing:.01em;opacity:.95}
+.right{display:flex;flex-direction:column;justify-content:space-between;gap:20px;min-width:0;overflow:hidden}
+.card{border-radius:26px;padding:24px 36px;font-family:'JetBrains Mono','SF Mono',Menlo,monospace;font-size:22px;line-height:1.5;overflow:hidden;color:#e8ecf3;white-space:pre;background:#0f1117;box-shadow:0 10px 40px rgba(0,0,0,.25)}
+.card.a{background:#0f1117}.card.b{background:#0e1a1f;font-size:25px}.card.c{background:#1d1414}.card.d{background:#141a2b}
+.rule{opacity:.55}
+.g{color:#a3e65a}.p{color:#b39cff}.y{color:#f5c84a}.m{color:#c9a3ff}.dim{opacity:.6}
+</style></head><body>
+<div class="wrap">
+  <div class="left">
+    <div class="disc">
+      <svg viewBox="0 0 100 100" fill="none">
+        <path d="M14 30c0-4 3-7 7-7h18l8 8h32c4 0 7 3 7 7v40c0 4-3 7-7 7H21c-4 0-7-3-7-7V30z" fill="#2b1d12"/>
+        <path d="M14 42h72" stroke="#f4efe3" stroke-width="3"/>
+        <rect x="26" y="52" width="48" height="5" rx="2.5" fill="#f4efe3"/>
+        <rect x="26" y="63" width="36" height="5" rx="2.5" fill="#f4efe3"/>
+        <rect x="26" y="74" width="24" height="5" rx="2.5" fill="#f4efe3"/>
+      </svg>
+    </div>
+    <div class="word"><h1>Tidy</h1><p>Sort Your Mac.</p></div>
+  </div>
+  <div></div>
+  <div class="right">
+<div class="card a"><span class="rule">================================================================</span>
+DRY RUN COMPLETE
+Downloads: <span class="g">112 items</span> → 42 sorted, 17 held, 38 to review <span class="dim">(no changes)</span>
+Screenshots found on Desktop, Documents, Movies: <span class="g">40</span>
+
+<span class="p">Nothing is deleted. Review ~/Tidy/{Trash,Duplicates,Unsure}</span>
+<span class="rule">================================================================</span></div>
+<div class="card b"><span class="rule">================================================================</span>
+APPLIED
+Moved: <span class="g">96 files</span> | Parked: 25 | Downloads now: <span class="g">0 items</span>
+Career/Resumes 9 · Finance-Legal 10 · CS1555/HW3 2
+Repos → ~/Code: <span class="g">16</span> (HEAD verified, memory followed)
+<span class="rule">================================================================</span></div>
+<div class="card c"><span class="rule">================================================================</span>
+LEARNED
+<span class="y">HW4.pdf</span> → CS1555 · homework · HW4   <span class="dim">(from your correction)</span>
+Rule saved: prefix "cs1555" → CS1555. Beats every heuristic.
+<span class="rule">================================================================</span></div>
+<div class="card d"><span class="rule">================================================================</span>
+UNDO
+Restored <span class="g">9 files</span> to where they were (journal replay)
+Storage report: 42.3 GB reclaimable, <span class="g">3.9 GB</span> safe to park
+<span class="rule">================================================================</span></div>
+  </div>
+</div>
+</body></html>
