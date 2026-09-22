@@ -1,0 +1,5 @@
+#!/bin/sh
+# Runs the TypeScript sources directly (Node >= 22.6 strips types). launchd has no PATH,
+# so the agent passes TIDY_NODE; otherwise use whatever node is on PATH.
+NODE="${TIDY_NODE:-$(command -v node)}"
+exec "$NODE" --no-warnings "$(dirname "$0")/../src/cli.ts" "$@"

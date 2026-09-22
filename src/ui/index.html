@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tidy</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --bg:#0b0d13;--surface:#12151d;--raised:#181c27;--line:rgba(255,255,255,.07);--line-strong:rgba(255,255,255,.14);
+  --text:#eef0f6;--muted:#8b93a7;--dim:#5b6172;
+  --accent:#4f8cff;--accent-bg:rgba(79,140,255,.12);
+  --ok:#3ecf8e;--warn:#f5b942;--bad:#f0616d;--hold:#c084fc;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;--sans:'Inter',system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--accent)}
+.app{display:grid;grid-template-columns:200px 1fr;min-height:100%}
+nav{border-right:1px solid var(--line);padding:20px 12px;display:flex;flex-direction:column;gap:2px;position:sticky;top:0;height:100vh}
+nav .brand{font-weight:600;letter-spacing:.02em;padding:6px 10px 16px;display:flex;align-items:baseline;gap:8px}
+nav .brand small{color:var(--dim);font-family:var(--mono);font-weight:400;font-size:11px}
+nav button{background:none;border:0;text-align:left;padding:8px 10px;border-radius:8px;color:var(--muted);cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+nav button:hover{background:var(--raised);color:var(--text)}
+nav button.on{background:var(--accent-bg);color:var(--text)}
+nav button .n{font-family:var(--mono);font-size:11px;color:var(--dim)}
+nav .foot{margin-top:auto;padding:10px;color:var(--dim);font-size:12px;line-height:1.6}
+main{padding:28px 32px 80px;min-width:0}
+section[hidden]{display:none}
+h1{font-size:20px;font-weight:600;margin:0 0 4px}
+h2{font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin:28px 0 10px}
+.sub{color:var(--muted);margin:0 0 20px;max-width:70ch}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.tile .k{font-size:11px;color:var(--dim);letter-spacing:.06em;text-transform:uppercase}
+.tile .v{font-family:var(--mono);font-size:22px;font-weight:600;margin-top:4px;font-variant-numeric:tabular-nums}
+.tile .v small{font-size:12px;color:var(--muted);font-weight:400;margin-left:6px}
+.tile.link{cursor:pointer}.tile.link:hover{border-color:var(--line-strong)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--line)}
+td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:hover td{background:rgba(255,255,255,.015)}
+.path{font-family:var(--mono);font-size:12px;word-break:break-all}
+.dim{color:var(--dim)}.muted{color:var(--muted)}
+.pill{display:inline-block;font-family:var(--mono);font-size:11px;padding:2px 7px;border-radius:6px;border:1px solid var(--line-strong);color:var(--muted);white-space:nowrap}
+.pill.move{color:var(--ok);border-color:rgba(62,207,142,.35)}
+.pill.hold{color:var(--hold);border-color:rgba(192,132,252,.35)}
+.pill.review{color:var(--warn);border-color:rgba(245,185,66,.35)}
+.pill.skip{color:var(--dim)}
+.pill.undo{color:var(--accent)}
+.conf{font-family:var(--mono);font-size:12px;font-variant-numeric:tabular-nums}
+.bar{display:inline-block;width:46px;height:4px;background:var(--line);border-radius:2px;vertical-align:middle;margin-right:6px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent)}
+.btn{background:var(--raised);border:1px solid var(--line-strong);border-radius:8px;padding:7px 12px;cursor:pointer;font-weight:500;font-size:13px}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{filter:brightness(1.1)}
+.btn.small{padding:4px 9px;font-size:12px}
+.btn.danger{color:var(--bad)}
+.btn:disabled{opacity:.5;cursor:default}
+input[type=text],input[type=number],select,textarea{background:var(--surface);border:1px solid var(--line-strong);border-radius:8px;padding:6px 9px;color:var(--text);min-width:0}
+input[type=text]:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
+input[type=checkbox]{accent-color:var(--accent)}
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 14px;position:sticky;top:0;background:var(--bg);padding:10px 0;z-index:2;border-bottom:1px solid var(--line)}
+.toolbar .spacer{flex:1}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.kv{display:grid;grid-template-columns:180px 1fr;gap:8px 14px;align-items:center}
+.kv label{color:var(--muted);font-size:13px}
+.batch{border:1px solid var(--line);border-radius:10px;margin-bottom:12px;overflow:hidden}
+.batch header{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--surface)}
+.batch header .t{font-family:var(--mono);font-size:12px}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--raised);border:1px solid var(--line-strong);border-radius:10px;padding:10px 14px;font-size:13px;opacity:0;transition:opacity .15s;pointer-events:none;max-width:420px}
+.toast.on{opacity:1}
+.tree{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.tree .card h3{margin:0 0 2px;font-size:13px;font-weight:600}
+.tree .card .path{color:var(--dim);margin-bottom:8px}
+.tree ul{list-style:none;margin:0;padding:0;font-family:var(--mono);font-size:12px}
+.tree li{display:flex;justify-content:space-between;padding:2px 0;color:var(--muted)}
+.tree li.d{color:var(--text)}
+.tree li .n{color:var(--dim)}
+.resolve{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;padding:10px;background:var(--raised);border-radius:8px;margin-top:6px}
+.resolve input,.resolve select{width:100%}
+.help{font-size:12px;color:var(--dim);margin:6px 0 0}
+.empty{color:var(--dim);padding:30px 0;text-align:center}
+.tag{display:inline-block;background:var(--raised);border:1px solid var(--line);border-radius:6px;padding:1px 7px;font-family:var(--mono);font-size:11px;margin:2px 4px 2px 0}
+.tag b{cursor:pointer;color:var(--dim);margin-left:4px;font-weight:400}
+.tag b:hover{color:var(--bad)}
+.cat{display:grid;grid-template-columns:24px 170px 1fr 260px;gap:8px 10px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
+.cat .name{font-family:var(--mono);font-size:12px}
+.cat .desc{font-size:12px;color:var(--muted)}
+.overflow{overflow-x:auto}
+@media (max-width:820px){.app{grid-template-columns:1fr}nav{position:static;height:auto;flex-direction:row;flex-wrap:wrap;border-right:0;border-bottom:1px solid var(--line)}nav .brand{width:100%}nav .foot{display:none}main{padding:20px 16px 60px}.grid2{grid-template-columns:1fr}.kv{grid-template-columns:1fr}.cat{grid-template-columns:24px 1fr}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+<nav>
+  <div class="brand">tidy <small id="ver"></small></div>
+  <button data-tab="overview" class="on">Overview</button>
+  <button data-tab="plan">Plan <span class="n" id="n-plan"></span></button>
+  <button data-tab="activity">Activity <span class="n" id="n-act"></span></button>
+  <button data-tab="rules">Rules</button>
+  <button data-tab="classes">Classes <span class="n" id="n-classes"></span></button>
+  <button data-tab="structure">Structure</button>
+  <button data-tab="repos">Projects</button>
+  <button data-tab="clean">Storage</button>
+  <div class="foot">Nothing is ever deleted. Everything is journaled; undo lives under Activity.<br><span id="agent-line" class="dim"></span></div>
+</nav>
+<main>
+
+<section id="tab-overview">
+  <h1>Overview</h1>
+  <p class="sub">What Tidy is watching, where things are waiting for you, and how the disk looks.</p>
+  <div class="tiles" id="ov-tiles"></div>
+  <h2>Watched folders</h2>
+  <div class="overflow"><table id="ov-roots"><thead><tr><th>Folder</th><th>Loose files</th><th>Folders</th><th>Repos</th><th></th></tr></thead><tbody></tbody></table></div>
+  <h2>Holding folders</h2>
+  <p class="sub">Tidy parks things here instead of deleting. Open them in Finder, delete what you agree with, or undo what you don't.</p>
+  <div class="tiles" id="ov-holding"></div>
+</section>
+
+<section id="tab-plan" hidden>
+  <h1>Plan</h1>
+  <p class="sub">A dry run over the watched folders. Nothing moves until you press Apply. Uncheck anything you disagree with; give unsure items a home right here and Tidy learns the rule.</p>
+  <div class="toolbar">
+    <button class="btn primary" id="plan-run">Run plan</button>
+    <label class="muted"><input type="checkbox" id="plan-skips"> show skipped</label>
+    <span class="spacer"></span>
+    <span class="muted" id="plan-summary"></span>
+    <button class="btn" id="plan-apply" disabled>Apply checked</button>
+  </div>
+  <div class="overflow"><table id="plan-table"><thead><tr><th style="width:28px"><input type="checkbox" id="plan-all" checked></th><th>Action</th><th>Item</th><th>Destination</th><th>Why</th><th>Confidence</th></tr></thead><tbody><tr><td colspan="6" class="empty">Run a plan to see what Tidy would do.</td></tr></tbody></table></div>
+</section>
+
+<section id="tab-activity" hidden>
+  <h1>Activity</h1>
+  <p class="sub">Every move Tidy made, newest first. Undo a whole batch or a single item; the file goes back exactly where it was.</p>
+  <div id="act-list"></div>
+</section>
+
+<section id="tab-rules" hidden>
+  <h1>Rules</h1>
+  <p class="sub">The config Tidy runs on (<span class="path" id="cfg-path"></span>). Changes save to that file and take effect on the next plan.</p>
+  <div class="toolbar"><button class="btn primary" id="rules-save">Save rules</button><button class="btn" id="rules-reset">Reset to defaults</button><span class="spacer"></span><span class="muted" id="rules-status"></span></div>
+  <div class="grid2">
+    <div class="card">
+      <h2 style="margin-top:0">Watched folders</h2>
+      <textarea id="r-roots" rows="5" style="width:100%"></textarea>
+      <p class="help">One per line. <code>~</code> is your home folder.</p>
+      <div class="kv" style="margin-top:12px">
+        <label>Sort loose files in ~</label><input type="checkbox" id="r-home">
+        <label>Inbox folders</label><input type="text" id="r-inbox">
+        <label>Inbox grace (days)</label><input type="number" id="r-grace" min="0" step="1">
+        <label>Park unsure inbox files</label><input type="checkbox" id="r-park">
+        <label>Move at confidence ≥</label><input type="number" id="r-move" min="0" max="1" step="0.05">
+        <label>Park in Trash at ≥</label><input type="number" id="r-hold" min="0" max="1" step="0.05">
+      </div>
+    </div>
+    <div class="card">
+      <h2 style="margin-top:0">Destinations</h2>
+      <div class="kv" id="r-dest"></div>
+      <p class="help">Category templates below refer to these as <code>{key}</code>.</p>
+    </div>
+  </div>
+  <h2>Categories</h2>
+  <div class="card">
+    <div class="cat" style="border:0;padding-bottom:2px"><span></span><span class="dim" style="font-size:11px">CATEGORY</span><span class="dim" style="font-size:11px">WHAT JEV IS TOLD</span><span class="dim" style="font-size:11px">DESTINATION TEMPLATE</span></div>
+    <div id="r-cats"></div>
+    <p class="help">Uncheck to disable a category. Templates use {destination keys}, {yyyy}, {mm}, {project}. Leave empty to always send to review.</p>
+  </div>
+  <div class="grid2" style="margin-top:14px">
+    <div class="card">
+      <h2 style="margin-top:0">Projects</h2>
+      <div class="kv">
+        <label>Buckets</label><input type="text" id="r-buckets">
+        <label>Dormant after (days)</label><input type="number" id="r-dormant">
+        <label>Leave symlink at old path</label><input type="checkbox" id="r-symlink">
+      </div>
+      <p class="help" style="margin-top:10px">Container folders → bucket (repos inside inherit it):</p>
+      <textarea id="r-containers" rows="4" style="width:100%" placeholder="personal projects = personal"></textarea>
+    </div>
+    <div class="card">
+      <h2 style="margin-top:0">School layout</h2>
+      <div class="kv">
+        <label>Documents template</label><input type="text" id="r-docs">
+        <label>Code template</label><input type="text" id="r-code">
+      </div>
+      <p class="help" style="margin-top:10px">Coursework type → folder name:</p>
+      <textarea id="r-typedirs" rows="6" style="width:100%"></textarea>
+    </div>
+  </div>
+  <h2>Protected names</h2>
+  <div class="card"><input type="text" id="r-protected" style="width:100%"><p class="help">Comma-separated folder names Tidy never enters or moves.</p></div>
+  <h2>Learned corrections</h2>
+  <div class="card" id="r-learned"></div>
+</section>
+
+<section id="tab-classes" hidden>
+  <h1>Classes</h1>
+  <p class="sub">Courses Tidy knows. Files are routed only to these, so a stray <code>IMG_1555.jpg</code> never becomes a class. Aliases are any spelling that appears in your filenames.</p>
+  <div class="toolbar"><input type="text" id="c-code" placeholder="Code, e.g. CS1555 or 15-213" style="width:180px"><input type="text" id="c-name" placeholder="Name" style="width:240px"><input type="text" id="c-inst" placeholder="Institution" style="width:200px"><button class="btn primary" id="c-add">Add course</button></div>
+  <div class="overflow"><table id="c-table"><thead><tr><th>Code</th><th>Name</th><th>Institution</th><th>Aliases</th><th></th></tr></thead><tbody></tbody></table></div>
+</section>
+
+<section id="tab-structure" hidden>
+  <h1>Structure</h1>
+  <p class="sub">Where things live now. Every destination from your rules, with what is in it.</p>
+  <div class="tree" id="struct"></div>
+</section>
+
+<section id="tab-repos" hidden>
+  <h1>Projects</h1>
+  <p class="sub">Code folders and repos still sitting in watched folders, and where they would go. Repos move only when nothing has them open; uncommitted changes travel with the folder.</p>
+  <div class="toolbar"><button class="btn primary" id="repos-run">Scan projects</button><label class="muted"><input type="checkbox" id="repos-dirty"> allow uncommitted changes</label><span class="spacer"></span><button class="btn" id="repos-apply" disabled>Move checked</button></div>
+  <div class="overflow"><table id="repos-table"><thead><tr><th style="width:28px"></th><th>Folder</th><th>Bucket</th><th>Destination</th><th>Why</th></tr></thead><tbody><tr><td colspan="5" class="empty">Scan to list project folders.</td></tr></tbody></table></div>
+</section>
+
+<section id="tab-clean" hidden>
+  <h1>Storage</h1>
+  <p class="sub">Reclaimable space. <b>Safe</b> = a regenerable folder in a project nothing has touched for months; it can be parked in Tidy/Trash/Reclaim and comes back with undo. Everything else is report-only.</p>
+  <div class="toolbar"><button class="btn primary" id="clean-run">Scan storage</button><span class="spacer"></span><span class="muted" id="clean-summary"></span><button class="btn" id="clean-apply" disabled>Park checked</button></div>
+  <div class="overflow"><table id="clean-table"><thead><tr><th style="width:28px"></th><th>Tier</th><th>Size</th><th>Modified</th><th>Path</th><th>Why</th></tr></thead><tbody><tr><td colspan="6" class="empty">Scan to see what could be reclaimed.</td></tr></tbody></table></div>
+</section>
+
+</main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const api=async(m,p,b)=>{const r=await fetch(p,{method:m,headers:{'content-type':'application/json'},body:b?JSON.stringify(b):undefined});const j=await r.json();if(!r.ok)throw new Error(j.error||r.statusText);return j};
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let S={};const relp=p=>p&&S.home&&p.startsWith(S.home)?'~'+p.slice(S.home.length):p;
+const gb=n=>(n/1e9).toFixed(2)+' GB';
+let toastT;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),2600)}
+function pill(op){return `<span class="pill ${op}">${op}</span>`}
+function conf(a){if(a.source==='rule'||a.source==='learned')return `<span class="conf dim">${a.source}</span>`;return `<span class="bar"><i style="width:${Math.round(a.confidence*100)}%"></i></span><span class="conf">${a.confidence.toFixed(2)}</span>`}
+
+// tabs
+$$('nav button[data-tab]').forEach(b=>b.onclick=()=>{$$('nav button').forEach(x=>x.classList.remove('on'));b.classList.add('on');$$('main>section').forEach(s=>s.hidden=s.id!=='tab-'+b.dataset.tab);try{localStorage.tidyTab=b.dataset.tab}catch{}({activity:loadActivity,structure:loadStructure})[b.dataset.tab]?.()});
+
+async function loadState(){
+  S=await api('GET','/api/state');
+  $('#cfg-path').textContent=S.configFile;
+  $('#n-classes').textContent=Object.keys(S.classes).length||'';
+  const d=S.disk;
+  $('#ov-tiles').innerHTML=[
+    ['Disk free',d?`${d.avail}<small>of ${d.size}</small>`:'—'],
+    ['Watched folders',S.config.roots.length],
+    ['Known courses',Object.keys(S.classes).length],
+    ['Learned rules',Object.keys(S.learned.names).length+Object.keys(S.learned.prefixes).length+Object.keys(S.learned.folders).length],
+    ['Move threshold',S.config.thresholds.move.toFixed(2)],
+  ].map(([k,v])=>`<div class="tile"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('');
+  $('#ov-roots tbody').innerHTML=S.roots.map(r=>`<tr><td class="path">${esc(r.root)}</td><td class="conf">${r.files}</td><td class="conf">${r.folders}</td><td class="conf">${r.repos}</td><td><button class="btn small" onclick="reveal('${esc(r.path)}')">Finder</button></td></tr>`).join('');
+  $('#ov-holding').innerHTML=S.holding.map(h=>`<div class="tile link" onclick="reveal('${esc(h.path)}')"><div class="k">${h.key}</div><div class="v">${h.items}<small>items · ${gb(h.bytes)}</small></div><div class="path dim" style="margin-top:4px">${esc(relp(h.path))}</div></div>`).join('');
+  api('GET','/api/agent').then(a=>$('#agent-line').textContent=a.lines[0]||'').catch(()=>{});
+  renderRules();renderClasses();
+}
+window.reveal=async p=>{try{await api('POST','/api/open',{path:p})}catch(e){toast(e.message)}};
+
+// ---- plan
+let PLAN=[];
+$('#plan-run').onclick=async()=>{$('#plan-run').disabled=true;$('#plan-summary').textContent='scanning…';try{PLAN=(await api('GET','/api/plan')).actions;renderPlan()}catch(e){toast(e.message)}$('#plan-run').disabled=false};
+$('#plan-skips').onchange=renderPlan;
+$('#plan-all').onchange=e=>{$$('#plan-table tbody input[type=checkbox]').forEach(c=>c.checked=e.target.checked);updatePlanBtn()};
+function renderPlan(){
+  const show=$('#plan-skips').checked;const order={hold:0,move:1,review:2,skip:3};
+  const rows=[...PLAN].sort((a,b)=>order[a.op]-order[b.op]);
+  const n=op=>PLAN.filter(a=>a.op===op).length;
+  $('#plan-summary').textContent=`${n('move')} move · ${n('hold')} to holding · ${n('review')} review · ${n('skip')} skip`;
+  $('#n-plan').textContent=n('move')+n('hold')||'';
+  $('#plan-table tbody').innerHTML=rows.filter(a=>show||a.op!=='skip').map((a,i)=>{
+    const idx=PLAN.indexOf(a);const actionable=a.op==='move'||a.op==='hold';
+    return `<tr><td>${actionable?`<input type="checkbox" data-i="${idx}" checked>`:''}</td><td>${pill(a.op)}</td><td class="path">${esc(relp(a.from))}</td><td class="path muted">${esc(a.to?relp(a.to):'')}</td><td class="muted" style="font-size:12px">${esc(a.reason)}</td><td>${conf(a)}</td></tr>`+
+      (a.op==='review'||a.op==='skip'&&a.reason.startsWith('folder')?`<tr><td></td><td colspan="5">${resolveForm(a.from)}</td></tr>`:'');
+  }).join('')||'<tr><td colspan="6" class="empty">Nothing to do. Watched folders are clean.</td></tr>';
+  $$('#plan-table tbody input[type=checkbox]').forEach(c=>c.onchange=updatePlanBtn);updatePlanBtn();
+}
+function updatePlanBtn(){const k=$$('#plan-table tbody input[type=checkbox]:checked').length;$('#plan-apply').disabled=!k;$('#plan-apply').textContent=`Apply ${k} checked`}
+$('#plan-apply').onclick=async()=>{const idx=$$('#plan-table tbody input[type=checkbox]:checked').map(c=>+c.dataset.i);const acts=idx.map(i=>PLAN[i]);$('#plan-apply').disabled=true;try{const r=await api('POST','/api/apply',{actions:acts});toast(`Applied ${r.done} of ${acts.length}. Undo is under Activity.`);PLAN=PLAN.filter(a=>!acts.includes(a));renderPlan();loadState()}catch(e){toast(e.message)}};
+function resolveForm(path){
+  const cats=Object.keys(S.config.categories).filter(k=>S.config.categories[k].enabled!==false&&k!=='screenshot'&&k!=='screen_recording');
+  const courses=Object.keys(S.classes);
+  const id='rf'+Math.random().toString(36).slice(2,8);
+  return `<div class="resolve" id="${id}">
+    <select data-k="category"><option value="">category…</option>${cats.map(c=>`<option>${c}</option>`).join('')}</select>
+    <select data-k="course"><option value="">course…</option>${courses.map(c=>`<option>${c}</option>`).join('')}</select>
+    <select data-k="type"><option value="">coursework type…</option>${S.courseworkTypes.map(t=>`<option>${t}</option>`).join('')}</select>
+    <input type="text" data-k="assignment" placeholder="assignment, e.g. HW4">
+    <input type="text" data-k="destination" placeholder="or a folder: ~/Documents/…">
+    <label class="muted" style="font-size:12px"><input type="checkbox" data-k="learnPrefix"> learn filename prefix</label>
+    <button class="btn small primary" onclick="doResolve('${id}','${esc(path)}')">Move &amp; learn</button>
+  </div>`;
+}
+window.doResolve=async(id,path)=>{const f=$('#'+id);const b={path};f.querySelectorAll('[data-k]').forEach(el=>{b[el.dataset.k]=el.type==='checkbox'?el.checked:el.value||undefined});if(!b.category&&!b.course&&!b.destination){toast('Pick a category, a course, or a folder.');return}try{const r=await api('POST','/api/resolve',b);const a=r.actions[0];toast(a?`${a.op}: ${relp(a.from)} → ${a.to?relp(a.to):a.reason}`:'no action');PLAN=PLAN.filter(x=>x.from!==path);renderPlan();loadState()}catch(e){toast(e.message)}};
+
+// ---- activity
+async function loadActivity(){
+  const {batches}=await api('GET','/api/journal');
+  $('#n-act').textContent=batches.reduce((s,b)=>s+b.rows.length,0)||'';
+  $('#act-list').innerHTML=batches.map(b=>`<div class="batch"><header><span class="t">${b.batch.replace('T',' ').slice(0,19)}</span><span class="muted">${b.rows.length} item${b.rows.length>1?'s':''}</span><span class="spacer" style="flex:1"></span><button class="btn small" onclick="undoBatch('${b.batch}')">Undo batch</button></header>
+    <div class="overflow"><table>${b.rows.map(r=>`<tr><td style="width:70px">${pill(r.op)}</td><td class="path">${esc(relp(r.from))}<div class="dim">→ ${esc(relp(r.to))}</div></td><td class="muted" style="font-size:12px;width:30%">${esc(r.reason)}</td><td style="width:70px"><button class="btn small" onclick="undoIds(['${esc(r.id)}'])">Undo</button></td></tr>`).join('')}</table></div></div>`).join('')||'<div class="empty">No moves yet.</div>';
+}
+window.undoBatch=async b=>{try{const r=await api('POST','/api/undo',{batch:b});toast(`Restored ${r.restored}`);loadActivity();loadState()}catch(e){toast(e.message)}};
+window.undoIds=async ids=>{try{const r=await api('POST','/api/undo',{ids});toast(`Restored ${r.restored}`);loadActivity();loadState()}catch(e){toast(e.message)}};
+
+// ---- rules
+function renderRules(){
+  const c=S.config;
+  $('#r-roots').value=c.roots.join('\n');$('#r-home').checked=c.homeLooseFiles;$('#r-inbox').value=c.inbox.roots.join(', ');$('#r-grace').value=c.inbox.graceDays;$('#r-park').checked=c.parkUnsureFromInbox;
+  $('#r-move').value=c.thresholds.move;$('#r-hold').value=c.thresholds.hold;
+  $('#r-dest').innerHTML=Object.entries(c.destinations).map(([k,v])=>`<label>{${k}}</label><input type="text" data-dest="${k}" value="${esc(v)}">`).join('');
+  $('#r-cats').innerHTML=Object.entries(c.categories).map(([k,d])=>`<div class="cat"><input type="checkbox" data-cat-on="${k}" ${d.enabled!==false?'checked':''}><span class="name">${k}</span><input type="text" class="desc" data-cat-desc="${k}" value="${esc(d.description)}"><input type="text" data-cat-dest="${k}" value="${esc(d.destination??'')}" placeholder="review only"></div>`).join('');
+  $('#r-buckets').value=c.code.buckets.join(', ');$('#r-dormant').value=c.code.dormantDays;$('#r-symlink').checked=c.code.compatSymlink;
+  $('#r-containers').value=Object.entries(c.code.containers).map(([k,v])=>`${k} = ${v}`).join('\n');
+  $('#r-docs').value=c.school.docsTemplate;$('#r-code').value=c.school.codeTemplate;
+  $('#r-typedirs').value=Object.entries(c.school.typeDirs).map(([k,v])=>`${k} = ${v}`).join('\n');
+  $('#r-protected').value=c.protected.join(', ');
+  const L=S.learned;const rows=[...Object.entries(L.names).map(([k,v])=>['name',k,v]),...Object.entries(L.prefixes).map(([k,v])=>['prefix',k,v]),...Object.entries(L.folders).map(([k,v])=>['folder',relp(k),v])];
+  $('#r-learned').innerHTML=rows.length?`<table>${rows.map(([kind,k,v])=>`<tr><td class="dim" style="width:70px">${kind}</td><td class="path">${esc(k)}</td><td class="muted" style="font-size:12px">${esc([v.category,v.course,v.type,v.assignment,v.destination&&relp(v.destination)].filter(Boolean).join(' · '))}</td><td style="width:60px"><button class="btn small danger" onclick="forget('${kind}','${esc(kind==='folder'?Object.keys(L.folders).find(f=>relp(f)===k):k)}')">Forget</button></td></tr>`).join('')}</table>`:'<div class="dim">None yet. Resolve an unsure item in Plan and the rule shows up here.</div>';
+}
+const list=s=>s.split(/[\n,]/).map(x=>x.trim()).filter(Boolean);
+const pairs=s=>Object.fromEntries(list(s).map(l=>l.split('=').map(x=>x.trim())).filter(p=>p[0]));
+$('#rules-save').onclick=async()=>{
+  const c=structuredClone(S.config);
+  c.roots=list($('#r-roots').value);c.homeLooseFiles=$('#r-home').checked;c.inbox.roots=list($('#r-inbox').value);c.inbox.graceDays=+$('#r-grace').value||0;c.parkUnsureFromInbox=$('#r-park').checked;
+  c.thresholds.move=+$('#r-move').value;c.thresholds.hold=+$('#r-hold').value;
+  $$('[data-dest]').forEach(i=>c.destinations[i.dataset.dest]=i.value.trim());
+  for(const k of Object.keys(c.categories)){c.categories[k].enabled=$(`[data-cat-on="${k}"]`).checked;c.categories[k].description=$(`[data-cat-desc="${k}"]`).value;const d=$(`[data-cat-dest="${k}"]`).value.trim();c.categories[k].destination=d||null}
+  c.code.buckets=list($('#r-buckets').value);c.code.dormantDays=+$('#r-dormant').value;c.code.compatSymlink=$('#r-symlink').checked;c.code.containers=pairs($('#r-containers').value);
+  c.school.docsTemplate=$('#r-docs').value;c.school.codeTemplate=$('#r-code').value;c.school.typeDirs=pairs($('#r-typedirs').value);
+  c.protected=list($('#r-protected').value);
+  try{await api('POST','/api/config',{config:c});$('#rules-status').textContent='saved';toast('Rules saved');loadState()}catch(e){toast(e.message)}
+};
+$('#rules-reset').onclick=async()=>{if(!confirm('Reset rules to defaults? Classes and learned corrections are kept.'))return;try{await api('POST','/api/config',{config:S.defaults});toast('Defaults restored');loadState()}catch(e){toast(e.message)}};
+window.forget=async(kind,key)=>{const L=structuredClone(S.learned);delete L[{name:'names',prefix:'prefixes',folder:'folders'}[kind]][key];try{await api('POST','/api/learned',{learned:L});loadState()}catch(e){toast(e.message)}};
+
+// ---- classes
+function renderClasses(){
+  const r=S.classes;
+  $('#c-table tbody').innerHTML=Object.entries(r).map(([code,c])=>`<tr><td class="path">${code}</td><td><input type="text" value="${esc(c.name??'')}" onchange="editClass('${code}','name',this.value)"></td><td><input type="text" value="${esc(c.institution??'')}" onchange="editClass('${code}','institution',this.value)"></td><td>${c.aliases.map(a=>`<span class="tag">${esc(a)}<b onclick="rmAlias('${code}','${esc(a)}')">×</b></span>`).join('')}<input type="text" placeholder="+ alias" style="width:110px" onchange="addAlias('${code}',this.value);this.value=''"></td><td><button class="btn small danger" onclick="rmClass('${code}')">Remove</button></td></tr>`).join('')||'<tr><td colspan="5" class="empty">No courses yet. Add one, or run <code>tidy init</code> to discover them from your files.</td></tr>';
+}
+async function saveClasses(r){try{const j=await api('POST','/api/classes',{classes:r});S.classes=j.classes;renderClasses();$('#n-classes').textContent=Object.keys(S.classes).length||''}catch(e){toast(e.message)}}
+$('#c-add').onclick=()=>{const code=$('#c-code').value.trim();if(!code)return;const r=structuredClone(S.classes);r[code]={name:$('#c-name').value.trim()||undefined,institution:$('#c-inst').value.trim()||undefined,aliases:[],source:'user'};$('#c-code').value=$('#c-name').value=$('#c-inst').value='';saveClasses(r)};
+window.editClass=(code,k,v)=>{const r=structuredClone(S.classes);r[code][k]=v.trim()||undefined;saveClasses(r)};
+window.addAlias=(code,v)=>{if(!v.trim())return;const r=structuredClone(S.classes);r[code].aliases.push(v.trim());saveClasses(r)};
+window.rmAlias=(code,a)=>{const r=structuredClone(S.classes);r[code].aliases=r[code].aliases.filter(x=>x!==a);saveClasses(r)};
+window.rmClass=code=>{if(!confirm(`Remove ${code}?`))return;const r=structuredClone(S.classes);delete r[code];saveClasses(r)};
+
+// ---- structure
+async function loadStructure(){
+  const {tree}=await api('GET','/api/structure');
+  $('#struct').innerHTML=tree.map(t=>`<div class="card"><h3>{${t.key}} <span class="dim" style="font-weight:400">${t.exists?t.items+' items':'not created yet'}</span></h3><div class="path">${esc(relp(t.path))}</div>${t.exists?`<ul>${t.children.map(ch=>`<li class="${ch.isDir?'d':''}"><span>${ch.isDir?'▸ ':''}${esc(ch.name)}</span>${ch.isDir?`<span class="n">${ch.items}</span>`:''}</li>`).join('')}${t.items>40?`<li class="dim">… ${t.items-40} more</li>`:''}</ul>`:''}</div>`).join('');
+}
+
+// ---- repos
+let REPOS=[];
+$('#repos-run').onclick=async()=>{$('#repos-run').disabled=true;try{REPOS=(await api('GET','/api/repos')).moves;renderRepos()}catch(e){toast(e.message)}$('#repos-run').disabled=false};
+function renderRepos(){
+  const buckets=S.config.code.buckets;
+  $('#repos-table tbody').innerHTML=REPOS.map((m,i)=>`<tr><td>${m.op==='move'?`<input type="checkbox" data-i="${i}" checked>`:''}</td><td class="path">${esc(relp(m.from))}</td><td><select data-b="${i}"><option value="">${m.op==='move'?'as planned':'choose…'}</option>${buckets.map(b=>`<option>${b}</option>`).join('')}</select></td><td class="path muted">${esc(m.to?relp(m.to):'')}</td><td class="muted" style="font-size:12px">${pill(m.op)} ${esc(m.reason)}</td></tr>`).join('')||'<tr><td colspan="5" class="empty">No project folders left in watched folders.</td></tr>';
+  $$('#repos-table select').forEach(s=>s.onchange=()=>{const m=REPOS[+s.dataset.b];if(s.value){const name=m.from.split('/').pop().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');m.to=S.config.destinations.code.replace(/^~/,S.home)+'/'+s.value+'/'+name;m.op='move';m.reason='bucket chosen by you';m.confidence=1}renderRepos()});
+  $$('#repos-table input').forEach(c=>c.onchange=updRepoBtn);updRepoBtn();
+}
+function updRepoBtn(){const k=$$('#repos-table input:checked').length;$('#repos-apply').disabled=!k;$('#repos-apply').textContent=`Move ${k} checked`}
+$('#repos-apply').onclick=async()=>{const moves=$$('#repos-table input:checked').map(c=>REPOS[+c.dataset.i]);try{const r=await api('POST','/api/repos/apply',{moves,allowDirty:$('#repos-dirty').checked});toast(`Moved ${r.moved}. ${r.log.filter(l=>/skipped|fix by hand|WARNING/.test(l)).join(' ')}`.slice(0,300));$('#repos-run').click();loadState()}catch(e){toast(e.message)}};
+
+// ---- clean
+let CLEAN=[];
+$('#clean-run').onclick=async()=>{$('#clean-run').disabled=true;$('#clean-summary').textContent='measuring…';try{CLEAN=(await api('GET','/api/clean')).items;renderClean()}catch(e){toast(e.message)}$('#clean-run').disabled=false};
+function renderClean(){
+  const tot=CLEAN.reduce((s,i)=>s+i.sizeMB,0),safe=CLEAN.filter(i=>i.tier==='safe').reduce((s,i)=>s+i.sizeMB,0);
+  $('#clean-summary').textContent=`${(tot/1024).toFixed(1)} GB found · ${(safe/1024).toFixed(1)} GB safe`;
+  $('#clean-table tbody').innerHTML=CLEAN.map((it,i)=>`<tr><td>${it.tier==='safe'?`<input type="checkbox" data-i="${i}">`:''}</td><td><span class="pill ${it.tier==='safe'?'move':'review'}">${it.tier}</span></td><td class="conf">${it.sizeMB>=1024?(it.sizeMB/1024).toFixed(1)+' GB':it.sizeMB+' MB'}</td><td class="conf dim">${it.lastModified}</td><td class="path">${esc(relp(it.path))}</td><td class="muted" style="font-size:12px">${esc(it.reason)}</td></tr>`).join('')||'<tr><td colspan="6" class="empty">Nothing over the size threshold.</td></tr>';
+  $$('#clean-table input').forEach(c=>c.onchange=updClean);updClean();
+}
+function updClean(){const k=$$('#clean-table input:checked').length;$('#clean-apply').disabled=!k;$('#clean-apply').textContent=`Park ${k} checked`}
+$('#clean-apply').onclick=async()=>{const paths=$$('#clean-table input:checked').map(c=>CLEAN[+c.dataset.i].path);try{const r=await api('POST','/api/clean/apply',{paths});toast(`Parked ${r.parked} in Tidy/Trash/Reclaim`);$('#clean-run').click();loadState()}catch(e){toast(e.message)}};
+
+loadState().then(()=>{let t;try{t=localStorage.tidyTab}catch{}if(t)$(`nav button[data-tab="${t}"]`)?.click();loadActivity()}).catch(e=>toast(e.message));
+</script>
+</body>
+</html>
